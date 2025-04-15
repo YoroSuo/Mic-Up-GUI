@@ -2,7 +2,16 @@
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 
--- GUI setup
+-- Check if the GUI already exists
+local existingGui = game.CoreGui:FindFirstChild("FancyScriptExecutor")
+
+if existingGui then
+    -- If GUI exists, toggle its visibility
+    existingGui.Visible = not existingGui.Visible
+    return
+end
+
+-- GUI setup (only create if it doesn't exist)
 local gui = Instance.new("ScreenGui")
 gui.Name = "FancyScriptExecutor"
 gui.Parent = game.CoreGui
@@ -132,4 +141,3 @@ minBtn.MouseButton1Click:Connect(function()
 		minBtn.Text = "-"
 	end
 end)
-
