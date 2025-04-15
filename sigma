@@ -1,7 +1,6 @@
 -- Services
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
 
 -- GUI setup
 local gui = Instance.new("ScreenGui")
@@ -32,18 +31,6 @@ titleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleBar.TextXAlignment = Enum.TextXAlignment.Center
 titleBar.Parent = main
 
--- 🔑 Hotkey hint label
-local keyHint = Instance.new("TextLabel")
-keyHint.Size = UDim2.new(1, 0, 0, 20)
-keyHint.Position = UDim2.new(0, 0, 0, 35)
-keyHint.BackgroundTransparency = 1
-keyHint.Text = "Press [L] to toggle UI"
-keyHint.Font = Enum.Font.Gotham
-keyHint.TextSize = 14
-keyHint.TextColor3 = Color3.fromRGB(150, 150, 150)
-keyHint.TextXAlignment = Enum.TextXAlignment.Center
-keyHint.Parent = main
-
 local minBtn = Instance.new("TextButton")
 minBtn.Size = UDim2.new(0, 40, 0, 30)
 minBtn.Position = UDim2.new(1, -45, 0, 5)
@@ -60,7 +47,7 @@ minCorner.Parent = minBtn
 
 local btnHolder = Instance.new("Frame")
 btnHolder.Size = UDim2.new(1, -20, 1, -60)
-btnHolder.Position = UDim2.new(0, 10, 0, 60)
+btnHolder.Position = UDim2.new(0, 10, 0, 50)
 btnHolder.BackgroundTransparency = 1
 btnHolder.Parent = main
 
@@ -132,27 +119,17 @@ minBtn.MouseButton1Click:Connect(function()
 	isMinimized = not isMinimized
 
 	if isMinimized then
+		-- Shrink and hide button area
 		TweenService:Create(main, TweenInfo.new(0.3), {Size = UDim2.new(0, 350, 0, 50)}):Play()
 		btnHolder.Visible = false
-		keyHint.Visible = false
 		minBtn.Text = "+"
 	else
+		-- Restore and show buttons
 		TweenService:Create(main, TweenInfo.new(0.3), {Size = originalSize}):Play()
 		task.delay(0.3, function()
 			btnHolder.Visible = true
-			keyHint.Visible = true
 		end)
 		minBtn.Text = "-"
 	end
 end)
 
--- 🔑 Keybind to toggle whole GUI (L)
-local guiVisible = true
-
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	if gameProcessed then return end
-	if input.KeyCode == Enum.KeyCode.L then
-		guiVisible = not guiVisible
-		gui.Enabled = guiVisible
-	end
-end)
