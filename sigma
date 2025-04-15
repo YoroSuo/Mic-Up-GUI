@@ -3,27 +3,30 @@ local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 
 -- Check if the GUI already exists
-local existingGui = game.CoreGui:FindFirstChild("FancyScriptExecutor")
-
+local existingGui = game.CoreGui:FindFirstChild("Nyxveil")
 if existingGui then
-	existingGui.Visible = not existingGui.Visible
-	return
+    existingGui.Visible = not existingGui.Visible
+    return
 end
 
 -- GUI setup
 local gui = Instance.new("ScreenGui")
-gui.Name = "FancyScriptExecutor"
+gui.Name = "Nyxveil"
 gui.Parent = game.CoreGui
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 350, 0, 420)
-main.Position = UDim2.new(0.5, -175, 0.5, -210)
-main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+main.Size = UDim2.new(0, 400, 0, 450)
+main.Position = UDim2.new(0.5, -200, 0.5, -225)
+main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 main.BorderSizePixel = 0
 main.Active = true
 main.Draggable = true
+main.BackgroundTransparency = 1
 main.Parent = gui
+
+local fadeIn = TweenService:Create(main, TweenInfo.new(0.7, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundTransparency = 0})
+fadeIn:Play()
 
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 12)
@@ -32,31 +35,67 @@ corner.Parent = main
 local titleBar = Instance.new("TextLabel")
 titleBar.Size = UDim2.new(1, 0, 0, 40)
 titleBar.BackgroundTransparency = 1
-titleBar.Text = "⚙️ Script Hub"
-titleBar.Font = Enum.Font.GothamBold
-titleBar.TextSize = 20
-titleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleBar.Text = "🕯️ Nyxveil 🖤"
+titleBar.Font = Enum.Font.Garamond
+titleBar.TextSize = 22
+titleBar.TextColor3 = Color3.fromRGB(200, 0, 0)
 titleBar.TextXAlignment = Enum.TextXAlignment.Center
 titleBar.Parent = main
 
 local minBtn = Instance.new("TextButton")
 minBtn.Size = UDim2.new(0, 40, 0, 30)
 minBtn.Position = UDim2.new(1, -45, 0, 5)
-minBtn.Text = "-"
-minBtn.Font = Enum.Font.GothamBold
+minBtn.Text = "☠️"
+minBtn.Font = Enum.Font.Garamond
 minBtn.TextSize = 20
 minBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-minBtn.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+minBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
 minBtn.Parent = main
 
 local minCorner = Instance.new("UICorner")
 minCorner.CornerRadius = UDim.new(0, 8)
 minCorner.Parent = minBtn
 
+-- Tabs
+local tabs = Instance.new("Frame")
+tabs.Size = UDim2.new(1, -20, 0, 40)
+tabs.Position = UDim2.new(0, 10, 0, 50)
+tabs.BackgroundTransparency = 1
+tabs.Name = "Tabs"
+tabs.Parent = main
+
+local tabLayout = Instance.new("UIListLayout")
+tabLayout.FillDirection = Enum.FillDirection.Horizontal
+tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+tabLayout.Padding = UDim.new(0, 10)
+tabLayout.Parent = tabs
+
+local function createTab(name)
+    local tab = Instance.new("TextButton")
+    tab.Size = UDim2.new(0, 120, 1, 0)
+    tab.Text = "🖤 " .. name
+    tab.Font = Enum.Font.Garamond
+    tab.TextSize = 16
+    tab.TextColor3 = Color3.fromRGB(255, 255, 255)
+    tab.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
+    tab.AutoButtonColor = false
+    local tcorner = Instance.new("UICorner")
+    tcorner.CornerRadius = UDim.new(0, 6)
+    tcorner.Parent = tab
+    return tab
+end
+
+local sections = {
+    ["Reanimation"] = {},
+    ["Utilities"] = {},
+    ["Voice"] = {},
+}
+
 local btnHolder = Instance.new("Frame")
-btnHolder.Size = UDim2.new(1, -20, 1, -60)
-btnHolder.Position = UDim2.new(0, 10, 0, 50)
+btnHolder.Size = UDim2.new(1, -20, 1, -100)
+btnHolder.Position = UDim2.new(0, 10, 0, 100)
 btnHolder.BackgroundTransparency = 1
+btnHolder.Name = "ButtonHolder"
 btnHolder.Parent = main
 
 local UIList = Instance.new("UIListLayout")
@@ -65,102 +104,135 @@ UIList.FillDirection = Enum.FillDirection.Vertical
 UIList.SortOrder = Enum.SortOrder.LayoutOrder
 UIList.Parent = btnHolder
 
--- Button creator
-local function createFancyBtn(name, callback)
-	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(1, 0, 0, 40)
-	btn.Text = name
-	btn.Font = Enum.Font.Gotham
-	btn.TextSize = 16
-	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-	btn.AutoButtonColor = false
-	btn.Parent = btnHolder
+local currentCategory = "Reanimation"
 
-	local bcorner = Instance.new("UICorner")
-	bcorner.CornerRadius = UDim.new(0, 8)
-	bcorner.Parent = btn
+local function createFancyBtn(name, callback, category)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 40)
+    btn.Text = name
+    btn.Font = Enum.Font.Garamond
+    btn.TextSize = 16
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.BackgroundColor3 = Color3.fromRGB(45, 0, 0)
+    btn.AutoButtonColor = false
+    btn.Visible = (category == currentCategory)
+    btn.Parent = btnHolder
+    btn.BackgroundTransparency = 1
 
-	btn.MouseEnter:Connect(function()
-		TweenService:Create(btn, TweenInfo.new(0.2), {
-			BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-		}):Play()
-	end)
+    local bcorner = Instance.new("UICorner")
+    bcorner.CornerRadius = UDim.new(0, 8)
+    bcorner.Parent = btn
 
-	btn.MouseLeave:Connect(function()
-		TweenService:Create(btn, TweenInfo.new(0.2), {
-			BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-		}):Play()
-	end)
+    -- Smooth button animation
+    local fadeInButton = TweenService:Create(btn, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundTransparency = 0})
+    fadeInButton:Play()
 
-	btn.MouseButton1Click:Connect(callback)
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.3, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {
+            BackgroundColor3 = Color3.fromRGB(70, 0, 0)
+        }):Play()
+    end)
+
+    btn.MouseLeave:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.3, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {
+            BackgroundColor3 = Color3.fromRGB(45, 0, 0)
+        }):Play()
+    end)
+
+    btn.MouseButton1Click:Connect(callback)
+    sections[category][#sections[category] + 1] = btn
 end
 
 -- Buttons
-createFancyBtn("💀 Reanimation Repeat", function()
-	repeat task.wait() until Players.LocalPlayer
-	local success, err = pcall(function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/0riginalWarrior/Stalkie/refs/heads/main/roblox.lua"))()
-	end)
-	if not success then
-		warn("Failed to load Reanimation script: " .. tostring(err))
-	end
-end)
+createFancyBtn("💀 Reanimation", function()
+    repeat task.wait() until Players.LocalPlayer
+    pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/0riginalWarrior/Stalkie/refs/heads/main/roblox.lua"))()
+    end)
+end, "Reanimation")
 
-createFancyBtn("⚠️ System Broken", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/script"))()
-end)
+createFancyBtn("⚙️ System Broken", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/script"))()
+end, "Utilities")
 
-createFancyBtn("🕳️ Anti Void", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/SlammedByCleetus/antivoid-for-mic-up-Roblox/refs/heads/main/AntiVoid.lua"))()
-end)
+createFancyBtn("🌑 Anti Void", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/SlammedByCleetus/antivoid-for-mic-up-Roblox/refs/heads/main/AntiVoid.lua"))()
+end, "Utilities")
 
-createFancyBtn("📂 Infinite Yield", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
-end)
+createFancyBtn("📜 Infinite yield", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+end, "Utilities")
 
-createFancyBtn("🎙️ Anti VC Suspension", function()
-	local voiceChatInternal = game:GetService("VoiceChatInternal")
+createFancyBtn("🎙️ Anti vc suspension", function()
+    local voiceChatInternal = game:GetService("VoiceChatInternal")
+    local function generateRandomId()
+        local chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        local id = ""
+        for i = 1, math.random(8, 16) do
+            id = id .. chars:sub(math.random(1, #chars), math.random(1, #chars))
+        end
+        return id
+    end
+    pcall(function()
+        voiceChatInternal:JoinByGroupId(generateRandomId(), false)
+    end)
+    task.wait(0.1)
+    pcall(function()
+        voiceChatInternal:JoinByGroupIdToken(generateRandomId(), false, true)
+    end)
+end, "Voice")
 
-	local function generateRandomId()
-		local chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-		local id = ""
-		for i = 1, math.random(8, 16) do
-			local c = math.random(1, #chars)
-			id = id .. chars:sub(c, c)
-		end
-		return id
-	end
+-- Tab Switching with Enhanced Smooth Animation
+for name, _ in pairs(sections) do
+    local tab = createTab(name)
+    tab.Parent = tabs
+    tab.MouseButton1Click:Connect(function()
+        if name == currentCategory then return end
 
-	pcall(function()
-		local randomGroupId = generateRandomId()
-		voiceChatInternal:JoinByGroupId(randomGroupId, false)
-	end)
+        -- Smooth transition with easing
+        TweenService:Create(tab, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            Position = UDim2.new(0, 10, 0, 50)
+        }):Play()
 
-	task.wait(0.1)
+        -- Fade out current buttons
+        for _, btn in ipairs(sections[currentCategory]) do
+            TweenService:Create(btn, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {TextTransparency = 1, BackgroundTransparency = 1}):Play()
+            task.delay(0.3, function()
+                btn.Visible = false
+            end)
+        end
 
-	pcall(function()
-		local randomGroupId = generateRandomId()
-		voiceChatInternal:JoinByGroupIdToken(randomGroupId, false, true)
-	end)
-end)
+        -- Set new category
+        currentCategory = name
+
+        -- Fade in new buttons with smoother animation
+        for _, btn in ipairs(sections[currentCategory]) do
+            btn.TextTransparency = 1
+            btn.BackgroundTransparency = 1
+            btn.Visible = true
+            TweenService:Create(btn, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {TextTransparency = 0, BackgroundTransparency = 0}):Play()
+        end
+    end)
+end
 
 -- Minimize logic
 local isMinimized = false
 local originalSize = main.Size
 
 minBtn.MouseButton1Click:Connect(function()
-	isMinimized = not isMinimized
+    isMinimized = not isMinimized
 
-	if isMinimized then
-		TweenService:Create(main, TweenInfo.new(0.3), {Size = UDim2.new(0, 350, 0, 50)}):Play()
-		btnHolder.Visible = false
-		minBtn.Text = "+"
-	else
-		TweenService:Create(main, TweenInfo.new(0.3), {Size = originalSize}):Play()
-		task.delay(0.3, function()
-			btnHolder.Visible = true
-		end)
-		minBtn.Text = "-"
-	end
+    if isMinimized then
+        TweenService:Create(main, TweenInfo.new(0.3, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {Size = UDim2.new(0, 400, 0, 50)}):Play()
+        tabs.Visible = false
+        btnHolder.Visible = false
+        minBtn.Text = "☠️"
+    else
+        TweenService:Create(main, TweenInfo.new(0.3, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {Size = originalSize}):Play()
+        task.delay(0.3, function()
+            tabs.Visible = true
+            btnHolder.Visible = true
+        end)
+        minBtn.Text = "🦇"
+    end
 end)
