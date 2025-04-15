@@ -6,12 +6,11 @@ local Players = game:GetService("Players")
 local existingGui = game.CoreGui:FindFirstChild("FancyScriptExecutor")
 
 if existingGui then
-    -- If GUI exists, toggle its visibility
-    existingGui.Visible = not existingGui.Visible
-    return
+	existingGui.Visible = not existingGui.Visible
+	return
 end
 
--- GUI setup (only create if it doesn't exist)
+-- GUI setup
 local gui = Instance.new("ScreenGui")
 gui.Name = "FancyScriptExecutor"
 gui.Parent = game.CoreGui
@@ -66,7 +65,7 @@ UIList.FillDirection = Enum.FillDirection.Vertical
 UIList.SortOrder = Enum.SortOrder.LayoutOrder
 UIList.Parent = btnHolder
 
--- Function to create buttons
+-- Button creator
 local function createFancyBtn(name, callback)
 	local btn = Instance.new("TextButton")
 	btn.Size = UDim2.new(1, 0, 0, 40)
@@ -97,7 +96,7 @@ local function createFancyBtn(name, callback)
 	btn.MouseButton1Click:Connect(callback)
 end
 
--- Script Buttons
+-- Buttons
 createFancyBtn("💀 Reanimation Repeat", function()
 	repeat task.wait() until Players.LocalPlayer
 	local success, err = pcall(function()
@@ -120,6 +119,32 @@ createFancyBtn("📂 Infinite Yield", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
 end)
 
+createFancyBtn("🎙️ Anti VC Suspension", function()
+	local voiceChatInternal = game:GetService("VoiceChatInternal")
+
+	local function generateRandomId()
+		local chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+		local id = ""
+		for i = 1, math.random(8, 16) do
+			local c = math.random(1, #chars)
+			id = id .. chars:sub(c, c)
+		end
+		return id
+	end
+
+	pcall(function()
+		local randomGroupId = generateRandomId()
+		voiceChatInternal:JoinByGroupId(randomGroupId, false)
+	end)
+
+	task.wait(0.1)
+
+	pcall(function()
+		local randomGroupId = generateRandomId()
+		voiceChatInternal:JoinByGroupIdToken(randomGroupId, false, true)
+	end)
+end)
+
 -- Minimize logic
 local isMinimized = false
 local originalSize = main.Size
@@ -128,12 +153,10 @@ minBtn.MouseButton1Click:Connect(function()
 	isMinimized = not isMinimized
 
 	if isMinimized then
-		-- Shrink and hide button area
 		TweenService:Create(main, TweenInfo.new(0.3), {Size = UDim2.new(0, 350, 0, 50)}):Play()
 		btnHolder.Visible = false
 		minBtn.Text = "+"
 	else
-		-- Restore and show buttons
 		TweenService:Create(main, TweenInfo.new(0.3), {Size = originalSize}):Play()
 		task.delay(0.3, function()
 			btnHolder.Visible = true
